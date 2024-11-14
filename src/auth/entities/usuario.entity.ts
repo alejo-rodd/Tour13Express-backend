@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { TipoDocumento } from "./tipo-documento.entity";
 import { TipoRol } from "./tipo-rol.entity";
 import { Producto } from '../../productos/entities/producto.entity';
@@ -12,20 +12,20 @@ export class Usuario {
     @Column('text')
     nombre: string;
 
-    @Column('text')
-    primer_ap: string;
+    @Column('text', {nullable: true})
+    primer_ap?: string;
 
-    @Column('text')
-    segundo_ap: string;
+    @Column('text', {nullable: true})
+    segundo_ap?: string;
 
     @ManyToOne(
         () => TipoDocumento,
         ( tipo_documento: TipoDocumento) => tipo_documento.usuario
     )
-    tipo_documento: string;
+    tipo_documento: TipoDocumento;
 
     @Column('text')
-    documento_usuario: string;
+    documento: string;
 
     @ManyToOne(
         () => TipoRol,
@@ -41,14 +41,16 @@ export class Usuario {
     })
     correo: string;
 
-    @Column('text')
+    @Column('text', {
+        select: false
+    })
     contrasena: string;
 
-    @Column('text')
-    logo: string;
+    @Column('text', {nullable: true})
+    logo?: string;
 
-    @Column('text')
-    direccion: string;
+    @Column('text', {nullable: true})
+    direccion?: string;
 
     @OneToMany(
         () => Producto,
@@ -56,4 +58,14 @@ export class Usuario {
         { eager: true}
     )
     producto: Producto;
+
+    @BeforeInsert()
+    checkFieldsBeforeInsert() {
+        this.correo = this.correo.toLowerCase().trim();
+    }
+
+    @BeforeUpdate()
+    checkFieldsBeforeUpdate() {
+        this.checkFieldsBeforeInsert();   
+    }
 }

@@ -15,6 +15,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     ConfigModule, 
     TypeOrmModule.forFeature([Cliente, Producto, TipoCategoria, Pedido])
   ],
-  exports: [TypeOrmModule]
+  exports: [
+    ProductosService,
+    TypeOrmModule
+  ]
 })
 export class ProductosModule {}
