@@ -26,9 +26,10 @@ export class AuthController {
     @Body('usuario') createUsuarioDto: CreateUsuarioDto,
     @Body('tipoDocumento') tipoDocumento: string,
     @Body('rol') rol: string,
-    @UploadedFile() logo: Express.Multer.File
+    @UploadedFile() logo?: Express.Multer.File
   ){
-    createUsuarioDto.logo = logo.filename;
+    if(logo) 
+      createUsuarioDto.logo = logo.filename;
     return this.authService.createUsuario(createUsuarioDto, tipoDocumento, rol);
   }
   
