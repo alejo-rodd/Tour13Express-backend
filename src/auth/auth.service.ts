@@ -1,5 +1,5 @@
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
-import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TipoDocumento } from './entities/tipo-documento.entity';
 import { Repository } from 'typeorm';
@@ -9,6 +9,7 @@ import { CreateTipoDto } from './dto/create-tipo.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { LoginUsuarioDto } from './dto/login-usuario.dto';
 
 
 @Injectable()
@@ -56,7 +57,27 @@ export class AuthService {
     
   }
 
+  async login (loginUsuarioDto: LoginUsuarioDto){
 
+    const{contrasena, correo} = loginUsuarioDto;
+
+    const usuario = await  this.usuarioRepository.findOne({
+      where: {correo},
+      select: {correo: true, contrasena: true, id: true}
+    });
+
+    if(!usuario)
+      throw new UnauthorizedException('Credentials are not valid (correo)');
+
+    if(!bcrypt.compareSync(contrasena, usuario.contrasena))
+      throw new UnauthorizedException('Credentials are not valid (constrasena)')
+
+    delete usuario.contrasena;
+    return {
+      ...usuario,
+      token: this.getJwtToken({id: usuario.id})
+    };
+  }
 
 
 
